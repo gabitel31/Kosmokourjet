@@ -2,6 +2,7 @@ from flask import Flask, session, redirect, url_for, escape, request, render_tem
 import hashlib
 import sqlite3
 import time
+import generation_univers
 
 app = Flask("Kosomokourjet")
 app.secret_key = 'YOLOBITCHOMMEGLE45612165216'
@@ -77,6 +78,29 @@ def register():
 
 
 
+
+univers = generation_univers.gen_univ(30,99,99,1)
+
+#INSCRITION EN BD DES SYSTEMES SOLAIRES
+conn = sqlite3.connect('donnees.db')
+c = conn.cursor()
+c.execute("""SELECT id_system FROM planetary_system""") #Vérification Univers
+resultat = c.fetchone()
+
+if resultat is None : #SI BD VIDE
+    print("Génération de l'univers en cours...")
+    for index in range(1,3):   #KIKI DUR
+        print("."*index)
+        time.sleep(0.7)
+
+
+    for systeme in univers:
+        c = conn.cursor()
+        c.execute("INSERT INTO planetary_system(coord_x, coord_y, name) VALUES(?,?,?)", (systeme[0], systeme[1],systeme [2])) #Vérification pseudo inexistant
+    conn.commit()
+    print("Univers généré avec succès !")
+else:
+    print("Univers deja existant.")
 
 
 app.run(port = 5001)
