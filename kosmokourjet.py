@@ -20,13 +20,13 @@ def login():
     c = conn.cursor()
     pseudo =  str(request.form['pseudo'] )
     c.execute("SELECT password_hash FROM account WHERE pseudo ='%s'" % pseudo)
-    resultat = c.fetchone()[0]
+    resultat = c.fetchone()
 
     if resultat is None :
         error_login = "Votre pseudo n'existe pas"
         return render_template('login.html', message = error_login)
 
-    if resultat != hash_password :
+    if resultat[0] != hash_password :
         error_login = "Votre mot de passe est erroné"
         return render_template('login.html', message = error_login)
 
@@ -42,15 +42,21 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        if request.form['password1'] == request.form['password2']:
+
+        if len(request.form['password1']) < 5 :
+            info_inscription = "erreur, mot de passe top court (min. 6 caractères)" #Vérification longuieur password
+            return render_template('login.html', message = info_inscription)
+
+        if len(request.form['pseudo']) < 4 :
+            info_inscription = "erreur, pseudo trop court (ctb, min. 5 caractères)" #Vérification longuieur pseudo
+            return render_template('login.html', message = info_inscription)
+
+        if request.form['password1'] == request.form['password2'] :  #Véridication pseudo conforme x2
             conn = sqlite3.connect('donnees.db')
             pseudo = request.form['pseudo']
             c = conn.cursor()
-            c.execute("""SELECT player_id FROM account WHERE pseudo = '%s'""" % pseudo)
+            c.execute("""SELECT player_id FROM account WHERE pseudo = '%s'""" % pseudo) #Vérification pseudo inexistant
             resultat = c.fetchone()
-
-
-
 
             if resultat is None :
                 #inscription en BD
@@ -66,23 +72,8 @@ def register():
         else:
             return "erreur, mots de passe différents"
 
+
     return render_template('register.html')
-
-
-
-
-
-
-
-# CREATION B DONNEES
-
-
-
-
-
-
-
-
 
 
 
